@@ -62,7 +62,19 @@ export default async (event, context) => {
         }
     }
 
-    const results = await Promise.all(streamers.map(fetchStreamerData));
+    async function fetchStreamersWithDelay(streamers) {
+        const results = [];
+
+        for (let i = 0; i < streamers.length; i++) {
+          const result = await fetchStreamerData(streamers[i]);
+          results.push(result);
+          await new Promise(resolve => setTimeout(resolve, 3000));  // 3 second delay
+        }
+
+        return results;
+    }
+
+    const results = await fetchStreamersWithDelay(streamers);
 
     return {
         statusCode: 200,
